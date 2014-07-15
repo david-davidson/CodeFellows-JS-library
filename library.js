@@ -1,19 +1,30 @@
 function Library(name) {
+    // Use example: var babel = new Library('babel', ['fiction', 'nonfiction']);
+    // shelvesArray is optional: you can initialize with just var babel = new Library('babel'), too.
     this.name = name;
-    this.shelves = []; // Initialize it empty; push into it as we go
+    this.shelves = {};
+    // if (Array.isArray(shelvesArray)) {
+    //     for (var i = 0; i < shelvesArray.length; i++) {
+    //         window[shelvesArray[i]] = new Shelf(this, shelvesArray[i]); // Runs each shelf argument through the Shelf() constructor, which is what pushes each new shelf into this.shelves. (I put that task in Shelf() so we can call Shelf() on its own.)
+    //     }
+    // }
     this.report = function() {
-        for (var j = 0; j < this.shelves.length; j++) {            
-            for (var k = 0; k < this.shelves[j].books.length; k++) {
-                console.log('Title: ' + this.shelves[j].books[k].title + ' | author: ' + this.shelves[j].books[k].author + ' | shelf: ' + this.shelves[j].name);
+        // Returns an object as associative array: {title: "shelf", secondTitle, "secondShelf", etc.}
+        allShelvedBooks = {};
+        for (var shelf in this.shelves) {
+            thisShelf = this.shelves[shelf];
+            for (var i = 0; i < thisShelf.books.length; i++) {
+                allShelvedBooks[thisShelf.books[i].title] = thisShelf.name;
             }
         }
+        return allShelvedBooks;
     };
 }
 
 function Shelf(library, name) {
     this.name = name;
     this.books = [];
-    library.shelves.push(this);
+    library.shelves[name] = this;
 }
 
 function Book(shelf, title, author) { // No need to define the library again; the shelf knows its library
@@ -36,12 +47,15 @@ function Book(shelf, title, author) { // No need to define the library again; th
 }
 
 var babel = new Library('babel');
-var fiction = new Shelf(babel, 'fiction');
-var nonfiction = new Shelf(babel, 'nonfiction');
 var memoir = new Shelf(babel, 'memoir');
+var nonfiction = new Shelf(babel, 'nonfiction');
+var fiction = new Shelf(babel, 'fiction');
+// console.log(babel.shelves);
+// console.log(babel.fiction);
 var elAleph = new Book(fiction, 'El Aleph', 'Borges');
+// console.log(babel.shelves.fiction.books[0]);
 var inquisiciones = new Book(nonfiction, 'Inquisiciones', 'Borges');
 var otrasInquisiciones = new Book(nonfiction, 'Otras Inquisiciones', 'Borges');
-otrasInquisiciones.enshelf(fiction);
+// otrasInquisiciones.enshelf(fiction);
 
-babel.report();
+console.log(babel.report());
