@@ -1,13 +1,13 @@
 function Library(name) {
-    // Use example: var babel = new Library('babel');
+    // e.g., var babel = new Library('babel');
     this.name = name;
     this.shelves = {};
 
     this.report = function() {
         // Returns an object as associative array: {title: "shelf", secondTitle, "secondShelf", etc.}
-        allShelvedBooks = {};
+        var allShelvedBooks = {};
         for (var shelf in this.shelves) {
-            thisShelf = this.shelves[shelf];
+            var thisShelf = this.shelves[shelf];
             for (var i = 0; i < thisShelf.books.length; i++) {
                 allShelvedBooks[thisShelf.books[i]] = thisShelf.name;
             }
@@ -17,19 +17,18 @@ function Library(name) {
 }
 
 function Shelf(library, name) {
-    // Use example: var fiction = new Shelf(babel, 'fiction');
+    // e.g., var fiction = new Shelf(babel, 'fiction');
     this.name = name;
-    this.books = [];
+    this.books = []; // An array (of objects) seems like the cleanest, most semantic data type here
     library.shelves[name] = this;
 }
 
 function Book(shelf, title, author) {
-    // Use example: var hamlet = new Book(fiction, 'Hamlet', 'Shakespeare');
+    // e.g., var hamlet = new Book(fiction, 'Hamlet', 'Shakespeare');
     this.title = title;
     this.author = author;
     this.unshelf = function() {
-        shelf = this.shelf;
-        console.log('Removing ' + this.title + ' from ' + this.shelf.name);
+        console.log('Removing "' + this.title + '" from shelf ' + this.shelf.name);
         var i = this.shelf.books.indexOf(this);
         this.shelf.books.splice(i, 1);
         this.shelved = false;
@@ -38,7 +37,8 @@ function Book(shelf, title, author) {
         if (this.shelved) {
             this.unshelf();
         }
-        shelf.books.push(this.title); // We push only the title, not the entire book object: otherwise, each book refers to its shelf, which refers to all its books, each of which refers to its shelf, each of which refers to all its books, etc. Note that, therefore, a given shelf knows only the *names* of its books.
+        console.log('Putting "' + this.title + '" on shelf ' + shelf.name);
+        shelf.books.push(this.title); // We push only the title, not the entire book object: otherwise, a shelf lists all its books, each of which lists its shelf, each of which lists all its books, etc.
         this.shelved = true;
         this.shelf = shelf; // Update the current shelf
     };
@@ -46,7 +46,7 @@ function Book(shelf, title, author) {
 }
 
 // Initialize library
-var babel = new Library('babel');
+var babel = new Library('Babel');
 
 // Initialize shelves
 var memoir = new Shelf(babel, 'memoir');
@@ -54,15 +54,16 @@ var nonfiction = new Shelf(babel, 'nonfiction');
 var fiction = new Shelf(babel, 'fiction');
 
 // Initialize books
-var elAleph = new Book(fiction, 'El Aleph', 'Borges');
-var elHacedor = new Book(memoir, 'El Hacedor', 'Borges');
-var otrasInquisiciones = new Book(nonfiction, 'Otras Inquisiciones', 'Borges');
+var elAleph = new Book(fiction, 'El Aleph', 'Borges, Jorge Luis');
+var elHacedor = new Book(memoir, 'El hacedor', 'Borges, Jorge Luis');
+var otrasInquisiciones = new Book(nonfiction, 'Otras inquisiciones', 'Borges, Jorge Luis');
 
-// Test shelf, enshelf methods
+// Test enshelf(), unshelf(), report() methods
 otrasInquisiciones.enshelf(memoir);
-otrasInquisiciones.enshelf(nonfiction);
-otrasInquisiciones.enshelf(fiction);
-otrasInquisiciones.unshelf();
+console.log(babel.report()); // {El hacedor: "memoir", Otras inquisiciones: "memoir", El Aleph: "fiction"}  
 
-// Test library's reporting method
-console.log(babel.report());
+otrasInquisiciones.enshelf(fiction);
+console.log(babel.report()); // {El hacedor: "memoir", El Aleph: "fiction", Otras inquisiciones: "fiction"} 
+
+otrasInquisiciones.unshelf();
+console.log(babel.report()); // {El hacedor: "memoir", El Aleph: "fiction"} 
