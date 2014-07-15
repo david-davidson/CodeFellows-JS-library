@@ -1,13 +1,8 @@
 function Library(name) {
-    // Use example: var babel = new Library('babel', ['fiction', 'nonfiction']);
-    // shelvesArray is optional: you can initialize with just var babel = new Library('babel'), too.
+    // Use example: var babel = new Library('babel');
     this.name = name;
     this.shelves = {};
-    // if (Array.isArray(shelvesArray)) {
-    //     for (var i = 0; i < shelvesArray.length; i++) {
-    //         window[shelvesArray[i]] = new Shelf(this, shelvesArray[i]); // Runs each shelf argument through the Shelf() constructor, which is what pushes each new shelf into this.shelves. (I put that task in Shelf() so we can call Shelf() on its own.)
-    //     }
-    // }
+
     this.report = function() {
         // Returns an object as associative array: {title: "shelf", secondTitle, "secondShelf", etc.}
         allShelvedBooks = {};
@@ -22,26 +17,31 @@ function Library(name) {
 }
 
 function Shelf(library, name) {
+    // Use example: var fiction = new Shelf(babel, 'fiction');
     this.name = name;
     this.books = [];
     library.shelves[name] = this;
 }
 
-function Book(shelf, title, author) { // No need to define the library again; the shelf knows its library
+function Book(shelf, title, author) {
+    // Use example: var hamlet = new Book(fiction, 'Hamlet', 'Shakespeare');
     this.title = title;
     this.author = author;
+
     this.unshelf = function() {
-        var shelf = this.shelf; // Get the most up-to-date shelf
+        console.log('Removing ' + this.title + ' from ' + shelf.name);
         var i = shelf.books.indexOf(this);
-        shelf.books.splice(i, 1); // Remove book from the shelf
-        this.shelf = false; // So we won't try to unshelf it next time
+        shelf.books.splice(i, 1);
+        this.shelved = false;
     };
+
     this.enshelf = function(shelf) {
-        if (this.shelf) {
+        if (this.shelved) {
             this.unshelf(); // Don't try to unshelve books that aren't shelved
         }
         shelf.books.push(this);
-        this.shelf = shelf; // Reset the shelf
+        this.shelved = true;
+        this.shelf = shelf; // Here's our problem!!!
     };
     this.enshelf(shelf);
 }
@@ -50,12 +50,17 @@ var babel = new Library('babel');
 var memoir = new Shelf(babel, 'memoir');
 var nonfiction = new Shelf(babel, 'nonfiction');
 var fiction = new Shelf(babel, 'fiction');
-// console.log(babel.shelves);
-// console.log(babel.fiction);
 var elAleph = new Book(fiction, 'El Aleph', 'Borges');
-// console.log(babel.shelves.fiction.books[0]);
-var inquisiciones = new Book(nonfiction, 'Inquisiciones', 'Borges');
+var elHacedor = new Book(memoir, 'El Hacedor', 'Borges');
 var otrasInquisiciones = new Book(nonfiction, 'Otras Inquisiciones', 'Borges');
-// otrasInquisiciones.enshelf(fiction);
+otrasInquisiciones.enshelf(memoir);
+otrasInquisiciones.enshelf(nonfiction);
+otrasInquisiciones.enshelf(fiction);
+otrasInquisiciones.unshelf();
 
 console.log(babel.report());
+
+/*
+To unshelf() itself, it needs to know what shelf it's on. If we set shelf as an attribute of Book(), then each shelf holds an array of books, each of which points to its parent shelf, each of which holds... infinite back and forth. Only one should know, and it's probably shelf. (Cleaner: library knows shelves; shelves know books; books know only about themselves.) Maybe something like getParentShelf(), which could ask each shelf, Do you hold me? loop through list of shelves, return shelf that holds books
+
+*/
