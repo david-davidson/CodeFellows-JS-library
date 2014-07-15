@@ -2,17 +2,16 @@ function Library(name) {
     // e.g., var babel = new Library('babel');
     this.name = name;
     this.shelves = {};
-
     this.report = function() {
         // Returns an object as associative array: {title: "shelf", secondTitle, "secondShelf", etc.}
-        var allShelvedBooks = {};
+        var allBooks = {};
         for (var shelf in this.shelves) {
             var thisShelf = this.shelves[shelf];
             for (var i = 0; i < thisShelf.books.length; i++) {
-                allShelvedBooks[thisShelf.books[i]] = thisShelf.name;
+                allBooks[thisShelf.books[i]] = thisShelf.name; // I'm assuming we're treating unshelved books as removed from the library
             }
         }
-        return allShelvedBooks;
+        return allBooks;
     };
 }
 
@@ -60,10 +59,10 @@ var otrasInquisiciones = new Book(nonfiction, 'Otras inquisiciones', 'Borges, Jo
 
 // Test enshelf(), unshelf(), report() methods
 otrasInquisiciones.enshelf(memoir);
-console.log(babel.report()); // {El hacedor: "memoir", Otras inquisiciones: "memoir", El Aleph: "fiction"}  
+console.log('Library contents: ' + JSON.stringify(babel.report())); // Library contents: {"El hacedor":"memoir","Otras inquisiciones":"memoir","El Aleph":"fiction"} 
 
 otrasInquisiciones.enshelf(fiction);
-console.log(babel.report()); // {El hacedor: "memoir", El Aleph: "fiction", Otras inquisiciones: "fiction"} 
+console.log('Library contents: ' + JSON.stringify(babel.report())); // Library contents: {"El hacedor":"memoir","El Aleph":"fiction","Otras inquisiciones":"fiction"}
 
 otrasInquisiciones.unshelf();
-console.log(babel.report()); // {El hacedor: "memoir", El Aleph: "fiction"} 
+console.log('Library contents: ' + JSON.stringify(babel.report())); // Library contents: {"El hacedor":"memoir","El Aleph":"fiction"} 
